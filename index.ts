@@ -8,6 +8,12 @@ const publicDir = p.resolve(__dirname, 'public')
 
 server.on('request', (req: IncomingMessage, res: ServerResponse) => {
     const { method, url: path, headers } = req
+
+    if(method !== 'GET'){
+        res.statusCode = 405
+        res.end()
+        return
+    }
     
      // 从URL路径中提取不包括查询参数的部分
      const fileName = path?.split('?')[0].slice(1) || 'index.html';
@@ -24,8 +30,11 @@ server.on('request', (req: IncomingMessage, res: ServerResponse) => {
                     res.end(`Internal Server Error: ${err.code}`)
                 }
             }
-            else {  
+            else {
+                //缓存规则
+                res.setHeader('Cache-Control', 'max-age=31536000, public')  
                 res.statusCode = 200
+                //设置内容
                 res.end(data)
             }
         }
